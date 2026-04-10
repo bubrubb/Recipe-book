@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Recipe Book</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: linear-gradient(135deg, #FFFBEB 0%, #FFF7ED 50%, #FFF1F2 100%);
+    min-height: 100vh;
+    color: #1F2937;
+  }
+  .app { max-width: 900px; margin: 0 auto; min-height: 100vh; }
+  
+  /* Header */
+  .header { padding: 28px 24px 0; display: flex; justify-content: space-between; align-items: center; }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 800; color: #78350F; letter-spacing: -0.5px; cursor: pointer; }
+  .header-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    background: rgba(120,53,15,0.08); color: #78350F; border: none; border-radius: 12px;
+    padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600; transition: all 0.2s; font-family: inherit;
+  }
+  .icon-btn:hover { background: rgba(120,53,15,0.15); }
+  .icon-btn.active { background: #78350F; color: #FFF; }
+  .badge-wrap { position: relative; }
+  .badge {
+    background: #DC2626; color: #FFF; font-size: 10px; font-weight: 700; border-radius: 50%;
+    width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+    position: absolute; top: -4px; right: -4px;
+  }
+
+  /* Search */
+  .search-bar { margin: 20px 24px 0; position: relative; }
+  .search-bar svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
+  .search-input {
+    width: 100%; padding: 14px 16px 14px 44px; border: 2px solid transparent; border-radius: 16px;
+    font-size: 15px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+    outline: none; color: #1F2937; font-family: inherit; transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: #D97706; }
+
+  /* Categories */
+  .categories { display: flex; gap: 8px; padding: 16px 24px; overflow-x: auto; scrollbar-width: none; }
+  .categories::-webkit-scrollbar { display: none; }
+  .cat-pill {
+    padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; border: none;
+    cursor: pointer; white-space: nowrap; background: rgba(255,255,255,0.7); color: #6B7280;
+    transition: all 0.2s; flex-shrink: 0; font-family: inherit;
+  }
+  .cat-pill.active { background: #78350F; color: #FFF; }
+
+  /* Grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; padding: 8px 24px 100px; }
+  .card {
+    background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border-radius: 20px;
+    padding: 20px; cursor: pointer; transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    border: 1px solid rgba(0,0,0,0.04); position: relative; overflow: hidden;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+  .card-accent { position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 20px 20px 0 0; }
+  .card-badge {
+    display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+  }
+  .card-title { font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 6px; line-height: 1.3; }
+  .card-desc { font-size: 13px; color: #6B7280; line-height: 1.5; margin-bottom: 12px; }
+  .card-meta { display: flex; gap: 14px; font-size: 12px; color: #9CA3AF; align-items: center; }
+  .meta-item { display: flex; align-items: center; gap: 4px; }
+
+  /* Detail */
+  .detail-container { padding: 0 24px 100px; }
+  .back-btn {
+    display: flex; align-items: center; gap: 6px; background: none; border: none;
+    color: #78350F; font-size: 14px; font-weight: 600; cursor: pointer; padding: 20px 0; font-family: inherit;
+  }
+  .detail-title { font-size: 32px; font-weight: 800; color: #1F2937; line-height: 1.2; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .detail-desc { font-size: 15px; color: #6B7280; line-height: 1.6; margin-bottom: 16px; }
+  .meta-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 4px; }
+  .meta-chip {
+    display: flex; align-items: center; gap: 6px; padding: 8px 14px;
+    background: rgba(255,255,255,0.8); border-radius: 12px; font-size: 13px; font-weight: 600; color: #4B5563;
+  }
+  .section { margin-bottom: 28px; }
+  .section-title {
+    font-size: 16px; font-weight: 700; color: #78350F; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 14px;
+  }
+
+  /* Ingredients with checkboxes */
+  .ing-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; transition: all 0.2s;
+  }
+  .ing-check {
+    width: 20px; height: 20px; border-radius: 5px; border: 2px solid #D1D5DB;
+    background: transparent; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .ing-check.checked { border: none; background: #78350F; }
+  .ing-name { flex: 1; font-size: 15px; color: #374151; transition: all 0.2s; }
+  .ing-amount { font-weight: 600; color: #78350F; font-size: 15px; transition: all 0.2s; }
+  .ing-row.checked .ing-name { color: #9CA3AF; text-decoration: line-through; text-decoration-thickness: 1px; }
+  .ing-row.checked .ing-amount { color: #C4A882; text-decoration: line-through; text-decoration-thickness: 1px; }
+
+  /* Steps */
+  .step-item {
+    display: flex; gap: 14px; padding: 14px 16px; margin-bottom: 8px;
+    background: rgba(255,255,255,0.7); border-radius: 14px; cursor: pointer;
+    transition: all 0.2s; align-items: flex-start; border: 1px solid transparent;
+  }
+  .step-item.done { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;
+    background: #78350F; color: #FFF; margin-top: 1px;
+  }
+  .step-item.done .step-num { background: #10B981; }
+  .step-text { font-size: 15px; line-height: 1.6; color: #374151; flex: 1; }
+  .step-item.done .step-text { color: #6B7280; text-decoration: line-through; }
+
+  /* Progress bar */
+  .progress-bar { height: 6px; background: rgba(0,0,0,0.06); border-radius: 3px; }
+  .progress-fill { height: 6px; border-radius: 3px; transition: width 0.4s ease; }
+
+  /* Buttons */
+  .action-btns { display: flex; gap: 10px; margin-top: 16px; }
+  .print-btn {
+    display: flex; align-items: center; gap: 6px; background: rgba(120,53,15,0.08);
+    color: #78350F; border: none; border-radius: 12px; padding: 10px 16px;
+    font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .delete-btn {
+    display: flex; align-items: center; gap: 6px; background: rgba(239,68,68,0.08);
+    color: #DC2626; border: none; border-radius: 12px; padding: 10px 16px;
+    font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+
+  /* Form */
+  .form-container { padding: 0 24px 100px; }
+  .form-group { margin-bottom: 18px; }
+  .form-label {
+    display: block; font-size: 12px; font-weight: 700; color: #78350F;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+  }
+  .form-input {
+    width: 100%; padding: 12px 14px; border: 2px solid rgba(0,0,0,0.06); border-radius: 12px;
+    font-size: 14px; background: rgba(255,255,255,0.8); outline: none; color: #1F2937;
+    font-family: inherit; transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: #D97706; }
+  .form-textarea { min-height: 80px; resize: vertical; }
+  .form-select { padding: 12px 14px; border: 2px solid rgba(0,0,0,0.06); border-radius: 12px; font-size: 14px; background: rgba(255,255,255,0.8); outline: none; color: #1F2937; cursor: pointer; font-family: inherit; }
+  .row-flex { display: flex; gap: 12px; }
+  .ing-form-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .small-input {
+    padding: 10px 12px; border: 2px solid rgba(0,0,0,0.06); border-radius: 10px;
+    font-size: 14px; background: rgba(255,255,255,0.8); outline: none; color: #1F2937; font-family: inherit;
+  }
+  .small-input:focus { border-color: #D97706; }
+  .remove-btn {
+    background: rgba(239,68,68,0.08); color: #EF4444; border: none; border-radius: 8px;
+    width: 32px; height: 38px; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; font-size: 18px; font-family: inherit;
+  }
+  .add-field-btn {
+    background: rgba(120,53,15,0.06); color: #78350F; border: none; border-radius: 10px;
+    padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 4px; font-family: inherit;
+  }
+  .save-btn {
+    background: #78350F; color: #FFF; border: none; border-radius: 14px;
+    padding: 14px 28px; font-size: 15px; font-weight: 700; cursor: pointer;
+    width: 100%; margin-top: 8px; font-family: inherit;
+  }
+  .save-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* Shopping */
+  .shop-recipe-card {
+    display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin-bottom: 8px;
+    background: rgba(255,255,255,0.7); border-radius: 14px; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.2s;
+  }
+  .shop-recipe-card.selected { background: rgba(120,53,15,0.08); border-color: #78350F; }
+  .shop-checkbox {
+    width: 22px; height: 22px; border-radius: 6px; border: 2px solid #D1D5DB;
+    background: transparent; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .shop-checkbox.checked { border: none; background: #78350F; }
+  .shop-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 4px;
+    background: rgba(255,255,255,0.6); border-radius: 12px; cursor: pointer; transition: all 0.2s;
+  }
+  .shop-item.checked { background: rgba(16,185,129,0.06); }
+  .shop-item-check {
+    width: 20px; height: 20px; border-radius: 50%; border: 2px solid #D1D5DB;
+    background: transparent; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .shop-item.checked .shop-item-check { border: none; background: #10B981; }
+  .shop-item-text { font-size: 14px; color: #374151; flex: 1; }
+  .shop-item.checked .shop-item-text { color: #9CA3AF; text-decoration: line-through; }
+  .shop-from { font-size: 12px; font-weight: 700; color: #78350F; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .generate-btn {
+    background: #78350F; color: #FFF; border: none; border-radius: 14px;
+    padding: 14px 28px; font-size: 15px; font-weight: 700; cursor: pointer;
+    width: 100%; margin-top: 12px; margin-bottom: 24px; font-family: inherit;
+  }
+  .generate-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* Print preview */
+  .print-preview-container { padding: 0 24px 100px; }
+  .print-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .print-title { font-size: 22px; font-weight: 800; color: #1F2937; letter-spacing: -0.5px; }
+  .print-go-btn {
+    background: #78350F; color: #FFF; border: none; border-radius: 12px;
+    padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; font-family: inherit;
+  }
+  .print-frame-wrap {
+    background: #FFF; border-radius: 12px; border: 1px solid #E5E7EB;
+    overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .print-frame-wrap iframe { width: 100%; height: 680px; border: none; }
+  .print-tip { font-size: 12px; color: #9CA3AF; text-align: center; margin-top: 12px; }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 60px 20px; color: #9CA3AF; }
+
+  /* Hide views */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* SVG icons inline */
+  svg { vertical-align: middle; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="logo" onclick="showView('home')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      My Recipe Book
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="shop-btn" onclick="showView('shopping')">
+        <span class="badge-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="badge" id="shop-badge" style="display:none">0</span>
+        </span>
+        Shop
+      </button>
+      <button class="icon-btn" id="add-btn" onclick="showView('add')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add
+      </button>
+    </div>
+  </div>
+
+  <!-- HOME VIEW -->
+  <div class="view active" id="view-home">
+    <div class="search-bar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" placeholder="Search recipes or ingredients..." oninput="filterRecipes()">
+    </div>
+    <div class="categories" id="categories"></div>
+    <div class="grid" id="recipe-grid"></div>
+  </div>
+
+  <!-- DETAIL VIEW -->
+  <div class="view" id="view-detail"></div>
+
+  <!-- ADD VIEW -->
+  <div class="view" id="view-add"></div>
+
+  <!-- SHOPPING VIEW -->
+  <div class="view" id="view-shopping"></div>
+
+  <!-- PRINT VIEW -->
+  <div class="view" id="view-print"></div>
+</div>
+
+<script>
+// ============================================================
+//  RECIPE DATA — ADD NEW RECIPES HERE!
+//  Just copy one of the objects below and fill in your info.
+// ============================================================
+let recipes = [
+  {
+    id: 1,
+    title: "Classic Marinara Sauce",
+    category: "Sauces",
+    prepTime: "10 min",
+    cookTime: "30 min",
+    servings: 4,
+    description: "A simple, rich tomato sauce perfect over pasta or as a pizza base.",
+    ingredients: [
+      { amount: "2 tbsp", item: "olive oil" },
+      { amount: "4 cloves", item: "garlic, minced" },
+      { amount: "1 can (28 oz)", item: "crushed tomatoes" },
+      { amount: "1 tsp", item: "dried oregano" },
+      { amount: "1 tsp", item: "dried basil" },
+      { amount: "½ tsp", item: "salt" },
+      { amount: "¼ tsp", item: "black pepper" },
+      { amount: "1 tsp", item: "sugar" },
+    ],
+    steps: [
+      "Heat olive oil in a saucepan over medium heat.",
+      "Add minced garlic and sauté for 1 minute until fragrant.",
+      "Pour in crushed tomatoes, oregano, basil, salt, pepper, and sugar.",
+      "Stir well and bring to a simmer.",
+      "Reduce heat to low and cook for 25 minutes, stirring occasionally.",
+      "Taste and adjust seasoning. Serve over your favorite pasta.",
+    ],
+  },
+  {
+    id: 2,
+    title: "Honey Garlic Chicken Thighs",
+    category: "Main Dishes",
+    prepTime: "15 min",
+    cookTime: "25 min",
+    servings: 4,
+    description: "Juicy chicken thighs glazed with a sweet and savory honey garlic sauce.",
+    ingredients: [
+      { amount: "8", item: "bone-in chicken thighs" },
+      { amount: "⅓ cup", item: "honey" },
+      { amount: "¼ cup", item: "soy sauce" },
+      { amount: "3 cloves", item: "garlic, minced" },
+      { amount: "1 tbsp", item: "olive oil" },
+      { amount: "1 tsp", item: "smoked paprika" },
+      { amount: "½ tsp", item: "black pepper" },
+      { amount: "1 tbsp", item: "sesame seeds (garnish)" },
+    ],
+    steps: [
+      "Preheat oven to 425°F (220°C).",
+      "Season chicken thighs with smoked paprika and black pepper.",
+      "Heat olive oil in an oven-safe skillet over medium-high heat. Sear chicken skin-side down for 5 minutes until golden.",
+      "While chicken sears, whisk together honey, soy sauce, and minced garlic.",
+      "Flip chicken, pour honey garlic sauce over the thighs.",
+      "Transfer skillet to oven and bake for 20–25 minutes until internal temp reaches 165°F.",
+      "Garnish with sesame seeds and serve with rice or vegetables.",
+    ],
+  },
+  {
+    id: 3,
+    title: "Beef Snacks",
+    category: "Snacks",
+    prepTime: "20 min",
+    cookTime: "4-6 hrs",
+    servings: 8,
+    description: "Savory homemade beef snacks made with a blend of ground beef and pork, seasoned with a bold mix of spices and brown sugar.",
+    ingredients: [
+      { amount: "2.5 lbs", item: "ground beef (80/20)" },
+      { amount: "1 lb", item: "ground pork" },
+      { amount: "1 tbsp", item: "sea salt" },
+      { amount: "½ tbsp", item: "seasoned salt" },
+      { amount: "1 tbsp", item: "granulated garlic" },
+      { amount: "1 tbsp", item: "granulated onion powder" },
+      { amount: "½ tsp", item: "red chili pepper flakes" },
+      { amount: "1 tsp", item: "hot smoked paprika" },
+      { amount: "1 tbsp", item: "coarse black pepper" },
+      { amount: "3 tbsp", item: "brown sugar" },
+      { amount: "2 tbsp", item: "Worcestershire sauce" },
+    ],
+    steps: [
+      "In a large bowl, combine the ground beef and ground pork. Mix until evenly blended.",
+      "Add the sea salt, seasoned salt, granulated garlic, granulated onion powder, red chili pepper flakes, hot smoked paprika, coarse black pepper, brown sugar, and Worcestershire sauce to the meat mixture.",
+      "Mix all seasonings into the meat thoroughly by hand until everything is evenly distributed.",
+      "Cover and refrigerate the seasoned meat mixture for at least 2 hours (overnight is best) to let the flavors meld.",
+      "Form the mixture into your desired shape — strips, sticks, or logs using a jerky gun or by hand.",
+      "Place on dehydrator trays or a wire rack set over a baking sheet.",
+      "Dehydrate at 160°F (70°C) for 4–6 hours, or bake at 200°F (95°C) for 3–4 hours, until firm and dried to your preference.",
+      "Let cool completely before storing. Keep in an airtight container in the fridge for up to 2 weeks.",
+    ],
+  },
+  {
+    id: 4,
+    title: "Bolognese",
+    category: "Sauces",
+    prepTime: "20 min",
+    cookTime: "45 min",
+    servings: 6,
+    description: "A rich, hearty Bolognese with ground sirloin, spicy Italian sausage, San Marzano tomatoes, and a touch of fresh nutmeg. Best served over pappardelle or casarecce.",
+    ingredients: [
+      { amount: "1.5 lbs", item: "ground sirloin" },
+      { amount: "1 lb", item: "spicy Italian sausage" },
+      { amount: "1", item: "yellow onion, diced" },
+      { amount: "1 stalk", item: "celery, finely diced" },
+      { amount: "1 medium", item: "carrot, grated" },
+      { amount: "4 tbsp", item: "extra virgin olive oil" },
+      { amount: "1 stick", item: "butter" },
+      { amount: "1 cup", item: "white wine (Chardonnay)" },
+      { amount: "1 can (32 oz)", item: "San Marzano crushed tomatoes" },
+      { amount: "3 big pinches", item: "salt, plus more to taste" },
+      { amount: "2 tsp", item: "crushed red pepper" },
+      { amount: "¼ tsp", item: "fresh nutmeg (microplaned from whole seed)" },
+      { amount: "¼ tsp", item: "baking soda (optional, if sauce is too acidic)" },
+    ],
+    steps: [
+      "Add 4 tablespoons of olive oil to a big saucepan along with 1 stick of butter. Set heat to medium.",
+      "Once the butter is fully melted, add the diced yellow onion. Stir occasionally and cook until the onion becomes translucent.",
+      "Add the grated carrot and diced celery. Cook, stirring occasionally, until the carrot and celery are soft.",
+      "Add the ground sirloin and spicy Italian sausage to the pot. Break the meat apart and begin to brown it.",
+      "Right before all the pink is gone from the meat, pour in 1 cup of white wine. Let the mixture simmer for about 2 minutes.",
+      "Add the 32 oz can of San Marzano crushed tomatoes. Stir everything together well.",
+      "Season with 3 big pinches of salt and 2 teaspoons of crushed red pepper. Stir to combine.",
+      "Let the sauce simmer on low for 30 minutes, stirring occasionally.",
+      "Taste the sauce. If it needs more salt, add salt to taste. If it's too acidic, add ¼ teaspoon of baking soda — do NOT use sugar.",
+      "Once the saltiness is at a good level, microplane a whole nutmeg seed directly into the sauce — just a few scrapes (about ¼ teaspoon worth). Stir it in.",
+      "Let the sauce simmer for 5 more minutes to let the nutmeg meld in.",
+      "Serve over your favorite pasta — pappardelle or casarecce are the best picks.",
+    ],
+  },
+  {
+    id: 5,
+    title: "Cherry Lime Slushy",
+    category: "Drinks",
+    prepTime: "15 min",
+    cookTime: "10 min",
+    servings: 2,
+    description: "A refreshing frozen cherry lime drink with a simple sugar syrup and a hint of orange bitters. From Homesick Texan.",
+    ingredients: [
+      { amount: "¼ cup", item: "water" },
+      { amount: "¼ cup", item: "granulated sugar" },
+      { amount: "8 oz", item: "pitted cherries, fresh or frozen" },
+      { amount: "½ cup", item: "freshly squeezed lime juice" },
+      { amount: "½ cup", item: "water, seltzer, or soda" },
+      { amount: "¼ tsp", item: "kosher salt" },
+      { amount: "8 drops", item: "orange bitters (optional)" },
+      { amount: "2 cups", item: "ice" },
+      { amount: "", item: "lime wedges, for serving" },
+    ],
+    steps: [
+      "Make a simple syrup: add ¼ cup water and ¼ cup sugar to a saucepan. Stir occasionally and bring the mixture to a boil on high.",
+      "When it comes to a boil, turn off the heat and remove the pot. Allow the syrup to cool for about 10 minutes. You can also refrigerate until ready to use.",
+      "Add the sugar syrup, frozen cherries, lime juice, water (or seltzer/soda), salt, orange bitters, and ice to a blender.",
+      "Blend on high until thick and smooth. Pour into glasses and serve immediately with lime wedges.",
+    ],
+  },
+  {
+    id: 6,
+    title: "Cucumber and Tomato Salad",
+    category: "Salads",
+    prepTime: "10 min",
+    cookTime: "0 min",
+    servings: 6,
+    description: "A fresh and simple salad with cucumbers, cherry tomatoes, red onion, and a light olive oil and vinegar dressing with dill. From Homesick Texan.",
+    ingredients: [
+      { amount: "2", item: "cucumbers, peeled and sliced into half moons" },
+      { amount: "1 pint", item: "ripe cherry tomatoes, cut in half" },
+      { amount: "¼ cup", item: "diced red onion" },
+      { amount: "1 tsp", item: "kosher salt" },
+      { amount: "½ tsp", item: "black pepper" },
+      { amount: "½ tsp", item: "dried dill" },
+      { amount: "2 tbsp", item: "olive oil" },
+      { amount: "2 tsp", item: "white vinegar" },
+    ],
+    steps: [
+      "Stir together the cucumbers, tomatoes, red onion, salt, pepper, and dill until well combined.",
+      "Whisk together the olive oil and vinegar until well combined, then gently stir into the salad. Taste and adjust seasonings. Serve immediately.",
+    ],
+  },
+  {
+    id: 7,
+    title: "German Potato Salad, Dallas Style",
+    category: "Sides",
+    prepTime: "15 min",
+    cookTime: "25 min",
+    servings: 8,
+    description: "A warm bacon-dressed potato salad with sour cream, vinegar, and fresh parsley. Great warm or cold. From Homesick Texan.",
+    ingredients: [
+      { amount: "2 lbs", item: "red potatoes" },
+      { amount: "1 tbsp", item: "kosher salt" },
+      { amount: "8 oz", item: "uncooked bacon" },
+      { amount: "1 medium", item: "yellow onion, diced" },
+      { amount: "2 cloves", item: "garlic, minced" },
+      { amount: "¼ cup", item: "white vinegar" },
+      { amount: "¼ cup", item: "sour cream" },
+      { amount: "½ cup", item: "chopped parsley" },
+      { amount: "1 tsp", item: "black pepper" },
+    ],
+    steps: [
+      "Place the potatoes in a large pot, cover with water, add the salt, and bring to a boil on high heat. Cook until fork tender, about 12–15 minutes. Drain and when cool enough to handle (about 10 minutes), cut into ¼-inch pieces. Taste and lightly salt as needed.",
+      "Meanwhile, cook the bacon in a large skillet on medium heat, turning once, until crisp, about 8 minutes. Remove the bacon from the skillet and add the onions.",
+      "Turn the heat to medium-low and cook the onions, stirring occasionally, until softened and just beginning to brown, about 8 minutes. Stir in the garlic and cook for 30 more seconds. Turn off the heat.",
+      "Stir the vinegar and sour cream into the skillet. Add the potatoes and gently toss until well coated. Chop the bacon and add it to the skillet along with the parsley and black pepper.",
+      "Taste and adjust seasonings. Serve warm, though it's good cold too.",
+    ],
+  },
+  {
+    id: 8,
+    title: "Green Chile Pork and Pinto Bean Stew",
+    category: "Soups",
+    prepTime: "20 min",
+    cookTime: "2.5 hrs",
+    servings: 6,
+    description: "A hearty Tex-Mex stew with pork shoulder, Hatch green chiles, pinto beans, and lager beer. Serve with tortillas and all the fixings. From Homesick Texan.",
+    ingredients: [
+      { amount: "1½ lbs", item: "pork shoulder, cut into ¼-inch cubes" },
+      { amount: "2 tsp", item: "kosher salt" },
+      { amount: "1 tsp", item: "black pepper" },
+      { amount: "1 tbsp", item: "bacon grease or safflower oil" },
+      { amount: "½ medium", item: "yellow onion, diced" },
+      { amount: "4 cloves", item: "garlic, minced" },
+      { amount: "1 tbsp", item: "ground cumin" },
+      { amount: "1 tbsp", item: "dried oregano" },
+      { amount: "1 cup", item: "lager beer" },
+      { amount: "3 cups", item: "chicken broth" },
+      { amount: "8", item: "Anaheim or Hatch green chiles, roasted, peeled, seeded, and diced (or 4 (4-oz) cans diced green chiles)" },
+      { amount: "1 (10-oz) can", item: "diced tomatoes and green chiles" },
+      { amount: "1", item: "bay leaf" },
+      { amount: "2 cups", item: "cooked pinto beans, drained (or 1 (15-oz) can, drained)" },
+      { amount: "1 tbsp", item: "freshly squeezed lime juice" },
+      { amount: "", item: "warm tortillas, for serving" },
+      { amount: "", item: "sour cream, for serving" },
+      { amount: "", item: "shredded cheese, for serving" },
+    ],
+    steps: [
+      "Season the pork with the salt and pepper. Heat the bacon grease in a large Dutch oven on medium heat, then add the pork. Cook, stirring occasionally, until lightly browned and some of its juices have been released, about 10 minutes.",
+      "Add the onion and cook, stirring occasionally, until softened, about 5 minutes. Stir in the garlic, cumin, and oregano and cook for another minute.",
+      "Pour the beer and broth into the pot, then add the chiles, diced tomatoes with chiles, and bay leaf. Stir until blended, turn heat to high, and bring to a boil.",
+      "Once boiling, turn the heat to low and simmer uncovered for 2 hours.",
+      "After 2 hours, add the cooked pinto beans and continue to cook uncovered for 30 minutes or until the pork is tender and the broth is reduced and fragrant. Stir in the lime juice, then taste and adjust seasonings, adding more salt if needed.",
+      "Serve warm in bowls with tortillas on the side, along with sour cream and cheese as garnishes.",
+    ],
+  },
+  {
+    id: 9,
+    title: "Hill Country Baked Beans",
+    category: "Sides",
+    prepTime: "30 min",
+    cookTime: "5 hrs 30 min",
+    servings: 8,
+    description: "Smoky, sweet, and tangy Texas-style baked beans with bacon, kielbasa, beer, and peach jam. A showstopper side dish. From Homesick Texan.",
+    ingredients: [
+      { amount: "1 lb", item: "dried pinto beans (or 3 (15-oz) cans pinto beans)" },
+      { amount: "1 tbsp", item: "kosher salt" },
+      { amount: "¼ tsp", item: "baking soda" },
+      { amount: "1", item: "bay leaf" },
+      { amount: "12 oz", item: "bacon" },
+      { amount: "12 oz", item: "kielbasa, diced" },
+      { amount: "1 medium", item: "yellow onion, diced" },
+      { amount: "1", item: "bell pepper, seeded and diced" },
+      { amount: "2", item: "jalapeños, seeded and diced" },
+      { amount: "4 cloves", item: "garlic, minced" },
+      { amount: "1 cup", item: "German-Texas beer (pilsner or bock)" },
+      { amount: "½ cup", item: "ketchup" },
+      { amount: "¼ cup", item: "prepared yellow mustard" },
+      { amount: "¼ cup", item: "dark molasses" },
+      { amount: "½ cup", item: "peach jam" },
+      { amount: "2 tbsp", item: "apple cider vinegar" },
+      { amount: "2 tbsp", item: "Worcestershire sauce" },
+      { amount: "1 tbsp", item: "chili powder" },
+      { amount: "1 tbsp", item: "ground cumin" },
+      { amount: "1 tbsp", item: "black pepper" },
+      { amount: "1 pinch", item: "cayenne" },
+    ],
+    steps: [
+      "If using dried beans, quick-soak them: place in a pot, cover with 1 inch of water (about 6 cups), stir in the salt, baking soda, and bay leaf. Bring to a boil on high, then turn off heat, cover, and let sit for 1 hour. (Or slow soak in the salty water overnight.)",
+      "Preheat oven to 275°F. Keep the pot covered and place it in the oven. Cook the beans until tender, about 2–2½ hours. Remove from oven.",
+      "Meanwhile, cook the bacon in a skillet on medium-low for about 5 minutes, turning once. Render some fat but leave it undercooked and still floppy. Remove bacon to a paper-towel-lined plate, leaving the fat in the skillet.",
+      "Add the kielbasa to the skillet and cook until some fat is rendered and it's beginning to brown, about 5 minutes. Remove kielbasa to the plate with the bacon.",
+      "With the skillet still on medium-low, add the onion, bell pepper, and jalapeño. Cook until translucent, about 5 minutes. Add garlic and cook 30 more seconds. Turn off heat.",
+      "If using canned beans, add them with their liquid to a Dutch oven. Otherwise, proceed with the beans you've been cooking.",
+      "Spoon the onion, pepper, and garlic mixture over the beans. Deglaze the skillet with the beer, swirling and scraping the bottom. Pour the liquid over the beans.",
+      "Chop the bacon into ½-inch pieces and add to the pot along with the kielbasa. Add the ketchup, mustard, molasses, peach jam, apple cider vinegar, Worcestershire sauce, chili powder, cumin, black pepper, and cayenne. Stir everything together. Taste and add more salt if needed.",
+      "Turn oven up to 350°F. Cook covered for 1 hour, then remove the lid and cook uncovered for 1 to 1½ hours, depending on how dry you want the beans. Taste and adjust spices, adding a splash more vinegar if you like.",
+      "Slow cooker option: cook covered on low for 8 hours or high for 6 hours. Remove the lid for the last hour if you prefer a drier consistency. Taste and add more seasonings and a splash of vinegar at the end to brighten it up.",
+    ],
+  },
+  {
+    id: 10,
+    title: "Mexican Rice",
+    category: "Sides",
+    prepTime: "10 min",
+    cookTime: "30 min",
+    servings: 8,
+    description: "Flavorful Mexican rice cooked in chicken broth with tomato paste, cumin, lime, and cilantro. From Homesick Texan.",
+    ingredients: [
+      { amount: "1 cup", item: "rice" },
+      { amount: "2 cups", item: "chicken broth" },
+      { amount: "1 tbsp", item: "butter" },
+      { amount: "1 tbsp", item: "olive oil" },
+      { amount: "1 medium", item: "yellow onion, diced" },
+      { amount: "4 cloves", item: "garlic, minced" },
+      { amount: "¼ cup", item: "tomato paste" },
+      { amount: "1 tbsp", item: "freshly squeezed lime juice" },
+      { amount: "½ cup", item: "chopped cilantro" },
+      { amount: "1 tbsp", item: "ground cumin" },
+      { amount: "", item: "salt to taste" },
+    ],
+    steps: [
+      "Add rice, chicken broth, and butter to a pot. Bring to a boil on high, stir once, and cover. Simmer on low for 20 minutes, then remove from heat and keep covered for 5 to 10 minutes longer.",
+      "Meanwhile, in a skillet on medium-low heat, cook the onions in olive oil for 6 minutes or until just about to brown. Add garlic and cook for 30 more seconds. Stir in the tomato paste and cumin and cook for 1 minute.",
+      "Mix the cooked rice into the skillet with the onion mixture. Add the lime juice and cilantro, and season with salt to taste.",
+    ],
+  },
+  {
+    id: 11,
+    title: "Sour Cream Chicken Enchiladas",
+    category: "Main Dishes",
+    prepTime: "30 min",
+    cookTime: "1 hr 15 min",
+    servings: 8,
+    description: "Tex-Mex sour cream chicken enchiladas with a creamy tomatillo-Serrano sauce and Monterey Jack cheese. From Homesick Texan.",
+    ingredients: [
+      { amount: "4", item: "boneless, skinless chicken breasts" },
+      { amount: "1 tsp", item: "kosher salt (for chicken)" },
+      { amount: "1 tsp", item: "black pepper (for chicken)" },
+      { amount: "1 tbsp", item: "safflower oil (for chicken)" },
+      { amount: "2 tbsp", item: "unsalted butter" },
+      { amount: "6", item: "fresh tomatillos, husked and halved (or 1 (10-oz) can)" },
+      { amount: "2", item: "Serrano chiles, seeded and diced" },
+      { amount: "2 cloves", item: "garlic, minced" },
+      { amount: "2 tbsp", item: "all-purpose flour" },
+      { amount: "1 tsp", item: "ground cumin" },
+      { amount: "½ tsp", item: "kosher salt (for sauce)" },
+      { amount: "1 dash", item: "cayenne" },
+      { amount: "2 cups", item: "chicken broth" },
+      { amount: "2 cups", item: "sour cream" },
+      { amount: "¼ cup", item: "chopped cilantro (for sauce)" },
+      { amount: "2 tbsp", item: "safflower oil (for tortillas)" },
+      { amount: "12", item: "corn tortillas" },
+      { amount: "½ medium", item: "onion, diced (for filling)" },
+      { amount: "3 cups (12 oz)", item: "shredded Monterey Jack cheese" },
+      { amount: "½ cup", item: "chopped cilantro, for serving" },
+    ],
+    steps: [
+      "Preheat oven to 350°F and lightly grease a 9×13 baking dish.",
+      "Season chicken breasts with salt and black pepper. Heat 1 tbsp oil in a large cast-iron or ovenproof skillet on medium heat. Sear chicken on each side for 3 minutes.",
+      "Place the chicken in the oven and bake uncovered for 25 minutes or until internal temp reaches 165°F. Remove chicken from oven (keep oven on). Let cool, then shred with 2 forks. Taste and add more salt and pepper if desired.",
+      "Meanwhile, make the sauce: melt butter in a medium pot on medium-low. Add the tomatillos and Serrano chiles, stirring occasionally, and cook until soft, about 4–5 minutes. Add garlic and cook for 30 seconds.",
+      "Whisk in the flour, cumin, salt, and cayenne. Cook for 1 more minute until lightly toasted and fragrant. Pour in the chicken broth and whisk until the broth has thickened, about 2–3 minutes. Stir in the sour cream and cilantro, then remove from heat.",
+      "Pour the sauce into a blender and puree until smooth. Taste and adjust seasonings.",
+      "In a skillet, heat 2 tbsp oil on medium-low. One at a time, heat the tortillas in the oil, then keep them wrapped in a cloth or tortilla warmer until all are heated.",
+      "Pour 1 cup of the sour cream sauce into the bottom of the 9×13 baking dish.",
+      "Assemble each enchilada: fill each warm tortilla with about ⅓ cup shredded chicken, 1 teaspoon diced onions, and 1 tablespoon cheese. Roll up and place seam-side down in the baking dish.",
+      "Cover the enchiladas with the remaining sauce and cheese. Bake uncovered for 25 minutes or until the top is brown and bubbling.",
+      "Serve warm topped with chopped cilantro.",
+    ],
+  },
+  {
+    id: 12,
+    title: "Strawberry Rice Krispies Treats",
+    category: "Desserts",
+    prepTime: "15 min",
+    cookTime: "20 min",
+    servings: 8,
+    description: "Strawberry-loaded Rice Krispies treats with freeze-dried strawberries, cinnamon, and a bright lime finish. From Homesick Texan.",
+    ingredients: [
+      { amount: "1¼ cups", item: "freeze-dried strawberries" },
+      { amount: "4 tbsp", item: "unsalted butter" },
+      { amount: "1 (10-oz) pkg", item: "large-puff marshmallows" },
+      { amount: "½ tsp", item: "kosher salt" },
+      { amount: "1 tsp", item: "ground cinnamon" },
+      { amount: "1 tsp", item: "vanilla extract" },
+      { amount: "1 tbsp", item: "freshly squeezed lime juice" },
+      { amount: "1 tbsp", item: "fresh lime zest" },
+      { amount: "6 cups", item: "Rice Krispies cereal" },
+    ],
+    steps: [
+      "Line a 9-inch square pan with parchment paper or foil that's been lightly greased.",
+      "Reserve ¼ cup of freeze-dried strawberries for garnish. Place 1 cup in a spice mill or blender and blend until powdered. Spoon the powder into a bowl using a non-stick spatula (it can get sticky).",
+      "In a large pot, melt the butter on medium-low heat until just beginning to brown, about 1–2 minutes. Add the marshmallows and stir occasionally with a non-stick spatula until melted, about 3–4 minutes.",
+      "Stir in the powdered freeze-dried strawberries, salt, cinnamon, vanilla, and lime juice until well blended. Turn off the heat, add the cereal, and stir until well combined. Taste and adjust seasoning if desired.",
+      "Spoon the mixture into the prepared pan and pat it out evenly. Garnish the top with the lime zest and remaining freeze-dried strawberries.",
+      "Allow to cool, then slice into bars. Store in an airtight container at room temperature for up to 3 days.",
+    ],
+  },
+  {
+    id: 13,
+    title: "Classic Chocolate Chip Cookies",
+    category: "Desserts",
+    prepTime: "15 min",
+    cookTime: "12 min",
+    servings: 24,
+    description: "Soft and chewy chocolate chip cookies with golden edges.",
+    ingredients: [
+      { amount: "2¼ cups", item: "all-purpose flour" },
+      { amount: "1 tsp", item: "baking soda" },
+      { amount: "1 tsp", item: "salt" },
+      { amount: "1 cup", item: "butter, softened" },
+      { amount: "¾ cup", item: "granulated sugar" },
+      { amount: "¾ cup", item: "packed brown sugar" },
+      { amount: "2", item: "large eggs" },
+      { amount: "2 tsp", item: "vanilla extract" },
+      { amount: "2 cups", item: "chocolate chips" },
+    ],
+    steps: [
+      "Preheat oven to 375°F (190°C). Line baking sheets with parchment paper.",
+      "Whisk flour, baking soda, and salt together in a bowl. Set aside.",
+      "Beat softened butter with both sugars until light and fluffy, about 3 minutes.",
+      "Add eggs one at a time, beating after each. Mix in vanilla extract.",
+      "Gradually add flour mixture, mixing on low until just combined.",
+      "Fold in chocolate chips by hand with a spatula.",
+      "Drop rounded tablespoons of dough onto prepared baking sheets, spacing 2 inches apart.",
+      "Bake 10–12 minutes until edges are golden but centers look slightly underdone.",
+      "Cool on baking sheet for 5 minutes, then transfer to a wire rack.",
+    ],
+  },
+  {
+    id: 14,
+    title: "White Borscht",
+    category: "Soups",
+    prepTime: "20 min",
+    cookTime: "45 min",
+    servings: 8,
+    description: "A hearty Polish white borscht with Polish sausage, potatoes, boiled eggs, horseradish, and heavy cream. Topped with crunchy bacon and fresh parsley.",
+    ingredients: [
+      { amount: "2 liters", item: "water" },
+      { amount: "2 cubes", item: "vegetable bouillon" },
+      { amount: "1 medium", item: "onion, whole and skinned" },
+      { amount: "2", item: "carrots, finely chopped" },
+      { amount: "4", item: "potatoes, chopped and peeled" },
+      { amount: "2 tbsp", item: "horseradish" },
+      { amount: "3", item: "bay leaves" },
+      { amount: "¼ cup", item: "flour" },
+      { amount: "1 cup", item: "heavy cream (add more if needed)" },
+      { amount: "1 lb", item: "Polish sausage, browned in a little oil" },
+      { amount: "2 medium", item: "onions, fine chopped (for sausage)" },
+      { amount: "½ bulb", item: "garlic, crushed" },
+      { amount: "5-6", item: "boiled eggs, peeled and quartered" },
+      { amount: "5 slices", item: "bacon, cooked crunchy and chopped" },
+      { amount: "", item: "lemon juice, for serving (optional)" },
+      { amount: "", item: "fresh parsley, for serving" },
+    ],
+    steps: [
+      "In a large pot, combine the water, vegetable bouillon, whole skinned onion, carrots, potatoes, horseradish, bay leaves, and flour. Bring to a boil, then reduce heat and simmer until the vegetables are soft.",
+      "While the soup simmers, brown the Polish sausage in a separate pan with a little oil (not too much). Add the fine chopped onions and crushed garlic and cook until the onions are soft.",
+      "When the vegetables in the soup are soft, add the heavy cream and stir to combine. Add more cream if needed.",
+      "Add the browned sausage, onions, and garlic mixture to the soup. Stir and let it simmer together for a few minutes.",
+      "Add the quartered boiled eggs to the pot.",
+      "To serve, ladle into bowls and top with crunchy chopped bacon. Squeeze lemon juice over for extra flavor and garnish with fresh parsley.",
+    ],
+  },
+  {
+    id: 15,
+    title: "Birria Tacos (Quesabirria)",
+    category: "Main Dishes",
+    prepTime: "30 min",
+    cookTime: "3 hrs",
+    servings: 8,
+    description: "Rich, tender beef birria served as crispy cheese-filled tacos with consommé for dipping.",
+    ingredients: [
+      { amount: "3–4 lbs", item: "beef chuck" },
+      { amount: "", item: "salt and pepper" },
+      { amount: "4", item: "guajillo chiles" },
+      { amount: "2", item: "ancho chiles" },
+      { amount: "2", item: "chipotle chiles" },
+      { amount: "1", item: "onion" },
+      { amount: "6 cloves", item: "garlic" },
+      { amount: "2", item: "Roma tomatoes" },
+      { amount: "2 tsp", item: "cumin" },
+      { amount: "2 tsp", item: "oregano" },
+      { amount: "½ tsp", item: "cloves" },
+      { amount: "1 tsp", item: "cinnamon" },
+      { amount: "2", item: "bay leaves" },
+      { amount: "2 tbsp", item: "apple cider vinegar" },
+      { amount: "2 cups", item: "beef broth" },
+      { amount: "", item: "corn tortillas" },
+      { amount: "", item: "shredded cheese (for tacos)" },
+      { amount: "", item: "onion, cilantro, lime, and consommé for serving" },
+    ],
+    steps: [
+      "Toast and soak the guajillo, ancho, and chipotle chiles until softened. Blend with the onion, garlic, Roma tomatoes, cumin, oregano, cloves, cinnamon, apple cider vinegar, and beef broth to make the sauce.",
+      "Season the beef chuck with salt and pepper. Sear the beef in a large pot or Dutch oven until browned on all sides. Add the blended sauce and bay leaves.",
+      "Simmer on low for 2.5–3.5 hours (or pressure cook for 45–60 minutes) until the beef is fork-tender.",
+      "Shred the beef and save the consommé. Skim the fat layer from the top and reserve it.",
+      "To make tacos, dip corn tortillas in the reserved fat. Add shredded cheese and birria meat, then crisp in a pan until the cheese melts and the tortilla is golden.",
+      "Serve with diced onion, cilantro, lime wedges, and a bowl of hot consommé for dipping.",
+    ],
+  },
+  {
+    id: 16,
+    title: "Birria Ramen",
+    category: "Soups",
+    prepTime: "10 min",
+    cookTime: "10 min",
+    servings: 2,
+    description: "A fusion twist using leftover birria meat and consommé as a rich ramen broth, topped with soft boiled eggs and chili oil.",
+    ingredients: [
+      { amount: "", item: "leftover birria meat + consommé" },
+      { amount: "2 packs", item: "ramen noodles (no seasoning packet)" },
+      { amount: "2", item: "soft boiled eggs" },
+      { amount: "", item: "cilantro" },
+      { amount: "", item: "onion, diced" },
+      { amount: "", item: "lime" },
+      { amount: "", item: "chili oil (optional)" },
+      { amount: "", item: "jalapeños (optional)" },
+      { amount: "", item: "corn (optional)" },
+    ],
+    steps: [
+      "Heat the birria consommé in a pot. Add water if it's too rich.",
+      "Cook the ramen noodles separately according to package directions (discard the seasoning packet). Drain.",
+      "Add noodles and birria meat to a bowl.",
+      "Pour hot consommé over the noodles and meat.",
+      "Top with soft boiled egg, cilantro, diced onion, a squeeze of lime, and chili oil.",
+    ],
+  },
+];
+
+// ============================================================
+//  STATE
+// ============================================================
+let nextId = 100;
+const CATEGORIES = ["All","Main Dishes","Sides","Sauces","Desserts","Soups","Salads","Breakfast","Snacks","Drinks"];
+const categoryColors = {
+  "Main Dishes":{bg:"#FEF3C7",text:"#92400E",accent:"#F59E0B"},
+  "Sides":{bg:"#DBEAFE",text:"#1E40AF",accent:"#3B82F6"},
+  "Sauces":{bg:"#FEE2E2",text:"#991B1B",accent:"#EF4444"},
+  "Desserts":{bg:"#FCE7F3",text:"#9D174D",accent:"#EC4899"},
+  "Soups":{bg:"#D1FAE5",text:"#065F46",accent:"#10B981"},
+  "Salads":{bg:"#ECFCCB",text:"#3F6212",accent:"#84CC16"},
+  "Breakfast":{bg:"#FEF9C3",text:"#854D0E",accent:"#EAB308"},
+  "Snacks":{bg:"#E0E7FF",text:"#3730A3",accent:"#6366F1"},
+  "Drinks":{bg:"#CCFBF1",text:"#115E59",accent:"#14B8A6"},
+};
+const defaultColor = {bg:"#F3F4F6",text:"#374151",accent:"#6B7280"};
+let activeCategory = "All";
+let selectedForShopping = new Set();
+let shoppingList = [];
+let checkedShopItems = new Set();
+let checkedIngredients = new Set();
+let completedSteps = new Set();
+let currentView = "home";
+
+function getColor(cat) { return categoryColors[cat] || defaultColor; }
+function checkSvg() { return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>'; }
+function clockSvg() { return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>'; }
+function servSvg() { return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>'; }
+function printSvg() { return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>'; }
+
+// ============================================================
+//  VIEWS
+// ============================================================
+function showView(name) {
+  currentView = name;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('shop-btn').classList.toggle('active', name === 'shopping');
+  document.getElementById('add-btn').classList.toggle('active', name === 'add');
+  if (name === 'home') renderHome();
+  if (name === 'add') renderAddForm();
+  if (name === 'shopping') renderShopping();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ============================================================
+//  HOME
+// ============================================================
+function renderHome() {
+  // Categories
+  const catDiv = document.getElementById('categories');
+  catDiv.innerHTML = CATEGORIES.map(c =>
+    `<button class="cat-pill ${activeCategory===c?'active':''}" onclick="setCategory('${c}')">${c}</button>`
+  ).join('');
+  filterRecipes();
+}
+
+function setCategory(cat) {
+  activeCategory = cat;
+  renderHome();
+}
+
+function filterRecipes() {
+  const q = document.querySelector('.search-input')?.value.toLowerCase() || '';
+  const filtered = recipes.filter(r => {
+    const matchSearch = r.title.toLowerCase().includes(q) || r.ingredients.some(i => i.item.toLowerCase().includes(q));
+    const matchCat = activeCategory === 'All' || r.category === activeCategory;
+    return matchSearch && matchCat;
+  });
+  const grid = document.getElementById('recipe-grid');
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><p style="font-size:40px;margin-bottom:8px">📖</p><p style="font-size:16px;font-weight:600;margin-bottom:4px">No recipes found</p><p style="font-size:13px">Try a different search or add a new recipe!</p></div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(r => {
+    const c = getColor(r.category);
+    return `<div class="card" onclick="openRecipe(${r.id})">
+      <div class="card-accent" style="background:${c.accent}"></div>
+      <span class="card-badge" style="background:${c.bg};color:${c.text}">${r.category}</span>
+      <div class="card-title">${r.title}</div>
+      <div class="card-desc">${r.description}</div>
+      <div class="card-meta">
+        ${r.prepTime ? `<span class="meta-item">${clockSvg()} ${r.prepTime} prep</span>` : ''}
+        ${r.cookTime ? `<span class="meta-item">${clockSvg()} ${r.cookTime} cook</span>` : ''}
+        <span class="meta-item">${servSvg()} ${r.servings}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+//  DETAIL
+// ============================================================
+function openRecipe(id) {
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  checkedIngredients = new Set();
+  completedSteps = new Set();
+  renderDetail(r);
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-detail').classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function renderDetail(r) {
+  const c = getColor(r.category);
+  const el = document.getElementById('view-detail');
+  el.innerHTML = `<div class="detail-container">
+    <button class="back-btn" onclick="showView('home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg> Back to recipes
+    </button>
+    <span class="card-badge" style="background:${c.bg};color:${c.text}">${r.category}</span>
+    <div class="detail-title">${r.title}</div>
+    <div class="detail-desc">${r.description}</div>
+    <div class="meta-row">
+      ${r.prepTime ? `<div class="meta-chip">${clockSvg()} ${r.prepTime} prep</div>` : ''}
+      ${r.cookTime ? `<div class="meta-chip">${clockSvg()} ${r.cookTime} cook</div>` : ''}
+      <div class="meta-chip">${servSvg()} Serves ${r.servings}</div>
+    </div>
+    <div style="margin:20px 0 28px" id="progress-wrap">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:600;color:#6B7280">Progress</span>
+        <span style="font-size:12px;font-weight:700;color:#78350F" id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%;background:#D97706"></div></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Ingredients</div>
+      <div id="ing-list">${r.ingredients.map((ing, i) => `
+        <div class="ing-row" id="ing-${i}" onclick="toggleIng(${i})">
+          <div class="ing-check" id="ing-check-${i}">&nbsp;</div>
+          <span class="ing-name">${ing.item}</span>
+          <span class="ing-amount">${ing.amount}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Directions</div>
+      ${r.steps.map((step, i) => `
+        <div class="step-item" id="step-${i}" onclick="toggleStep(${r.id},${i})">
+          <div class="step-num" id="step-num-${i}">${i+1}</div>
+          <div class="step-text">${step}</div>
+        </div>`).join('')}
+    </div>
+    <div class="action-btns">
+      <button class="print-btn" onclick="openPrint(${r.id})">${printSvg()} Print Recipe</button>
+      <button class="delete-btn" onclick="deleteRecipe(${r.id})">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete Recipe
+      </button>
+    </div>
+  </div>`;
+}
+
+function toggleIng(i) {
+  if (checkedIngredients.has(i)) checkedIngredients.delete(i); else checkedIngredients.add(i);
+  const row = document.getElementById('ing-'+i);
+  const check = document.getElementById('ing-check-'+i);
+  row.classList.toggle('checked', checkedIngredients.has(i));
+  check.classList.toggle('checked', checkedIngredients.has(i));
+  check.innerHTML = checkedIngredients.has(i) ? checkSvg() : '&nbsp;';
+}
+
+function toggleStep(recipeId, i) {
+  const r = recipes.find(x => x.id === recipeId);
+  if (completedSteps.has(i)) completedSteps.delete(i); else completedSteps.add(i);
+  const el = document.getElementById('step-'+i);
+  const num = document.getElementById('step-num-'+i);
+  el.classList.toggle('done', completedSteps.has(i));
+  num.innerHTML = completedSteps.has(i) ? checkSvg() : (i+1);
+  const pct = r ? Math.round((completedSteps.size / r.steps.length) * 100) : 0;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  const fill = document.getElementById('progress-fill');
+  fill.style.width = pct + '%';
+  fill.style.background = pct === 100 ? '#10B981' : '#D97706';
+}
+
+function deleteRecipe(id) {
+  if (!confirm('Delete this recipe?')) return;
+  recipes = recipes.filter(r => r.id !== id);
+  showView('home');
+}
+
+// ============================================================
+//  PRINT
+// ============================================================
+function openPrint(id) {
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  const ingCols = r.ingredients.length > 8;
+  const manySteps = r.steps.length > 8;
+  const ingHtml = r.ingredients.map(ing =>
+    `<div class="ing-item"><span class="ing-box"></span><span class="ing-name">${ing.item}</span><span class="ing-amount">${ing.amount}</span></div>`
+  ).join('');
+  const stepsHtml = r.steps.map((s,i) =>
+    `<div class="step"><span class="step-num">${i+1}</span><span class="step-text">${s}</span></div>`
+  ).join('');
+
+  const html = `<!DOCTYPE html><html><head><style>
+    @page{size:letter;margin:0.5in 0.6in}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Georgia,'Times New Roman',serif;color:#1a1a1a;font-size:${manySteps?'9.5pt':'10.5pt'};line-height:1.45}
+    .header{border-bottom:2px solid #78350F;padding-bottom:8px;margin-bottom:10px}
+    .title{font-size:22pt;font-weight:bold;color:#78350F;letter-spacing:-0.5px}
+    .desc{font-style:italic;color:#666;font-size:9.5pt;margin-top:3px}
+    .meta{display:flex;gap:18px;margin-top:6px;font-size:9pt;color:#555;font-weight:bold}
+    .section-title{font-size:11pt;font-weight:bold;color:#78350F;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;border-bottom:1px solid #ddd;padding-bottom:3px}
+    .ingredients{margin-bottom:12px}
+    .ing-grid{${ingCols?'column-count:2;column-gap:20px;':''}}
+    .ing-item{display:flex;align-items:center;gap:6px;padding:2.5px 0;border-bottom:1px dotted #e0e0e0;break-inside:avoid}
+    .ing-box{width:11px;height:11px;border:1.5px solid #999;border-radius:2px;flex-shrink:0}
+    .ing-name{flex:1}.ing-amount{font-weight:bold;color:#78350F;white-space:nowrap}
+    .steps{margin-top:10px}
+    .step{display:flex;gap:8px;margin-bottom:5px;align-items:flex-start}
+    .step-num{background:#78350F;color:white;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8.5pt;font-weight:bold;flex-shrink:0;margin-top:1px}
+    .step-text{flex:1}
+    .footer{margin-top:16px;padding-top:8px;border-top:1px solid #ddd;font-size:8pt;color:#999;text-align:center}
+  </style></head><body>
+    <div class="header"><div class="title">${r.title}</div>
+    ${r.description?`<div class="desc">${r.description}</div>`:''}
+    <div class="meta">${r.prepTime?`<span>Prep: ${r.prepTime}</span>`:''}${r.cookTime?`<span>Cook: ${r.cookTime}</span>`:''}<span>Serves: ${r.servings}</span><span>${r.category}</span></div></div>
+    <div class="ingredients"><div class="section-title">Ingredients</div><div class="ing-grid">${ingHtml}</div></div>
+    <div class="steps"><div class="section-title">Directions</div>${stepsHtml}</div>
+    <div class="footer">My Recipe Book</div>
+  </body></html>`;
+
+  const el = document.getElementById('view-print');
+  el.innerHTML = `<div class="print-preview-container">
+    <button class="back-btn" onclick="openRecipe(${r.id})">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg> Back to recipe
+    </button>
+    <div class="print-header">
+      <div class="print-title">Print Preview</div>
+      <button class="print-go-btn" onclick="doPrint()">${printSvg()} Print / Save PDF</button>
+    </div>
+    <div class="print-frame-wrap">
+      <iframe id="print-frame" title="Print Preview"></iframe>
+    </div>
+    <p class="print-tip">Tip: In the print dialog, select "Save as PDF" as your printer to save a PDF file. Set margins to default or minimum.</p>
+  </div>`;
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  el.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+
+  setTimeout(() => {
+    const iframe = document.getElementById('print-frame');
+    iframe.srcdoc = html;
+  }, 50);
+}
+
+function doPrint() {
+  const iframe = document.getElementById('print-frame');
+  if (iframe) { iframe.contentWindow.focus(); iframe.contentWindow.print(); }
+}
+
+// ============================================================
+//  ADD RECIPE FORM
+// ============================================================
+let formIngredients = [{amount:'',item:''}];
+let formSteps = [''];
+
+function renderAddForm() {
+  formIngredients = [{amount:'',item:''}];
+  formSteps = [''];
+  rebuildAddForm();
+}
+
+function rebuildAddForm() {
+  const el = document.getElementById('view-add');
+  el.innerHTML = `<div class="form-container">
+    <button class="back-btn" onclick="showView('home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg> Back
+    </button>
+    <div style="font-size:26px;font-weight:800;color:#1F2937;margin-bottom:24px;letter-spacing:-0.5px">Add New Recipe</div>
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input class="form-input" id="f-title" placeholder="Recipe name...">
+    </div>
+    <div class="row-flex" style="margin-bottom:18px">
+      <div style="flex:1"><label class="form-label">Category</label>
+        <select class="form-select" id="f-category">${CATEGORIES.filter(c=>c!=='All').map(c=>`<option>${c}</option>`).join('')}</select>
+      </div>
+      <div style="flex:1"><label class="form-label">Servings</label>
+        <input class="form-input" id="f-servings" type="number" min="1" value="4">
+      </div>
+    </div>
+    <div class="row-flex" style="margin-bottom:18px">
+      <div style="flex:1"><label class="form-label">Prep Time</label><input class="form-input" id="f-prep" placeholder="e.g. 15 min"></div>
+      <div style="flex:1"><label class="form-label">Cook Time</label><input class="form-input" id="f-cook" placeholder="e.g. 30 min"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-input form-textarea" id="f-desc" placeholder="Brief description..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ingredients</label>
+      <div id="f-ing-list">${formIngredients.map((ing,i) => ingFieldHtml(i)).join('')}</div>
+      <button class="add-field-btn" onclick="addIngField()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Add ingredient
+      </button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Steps</label>
+      <div id="f-step-list">${formSteps.map((s,i) => stepFieldHtml(i)).join('')}</div>
+      <button class="add-field-btn" onclick="addStepField()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Add step
+      </button>
+    </div>
+    <button class="save-btn" onclick="saveRecipe()">Save Recipe</button>
+  </div>`;
+}
+
+function ingFieldHtml(i) {
+  return `<div class="ing-form-row">
+    <input class="small-input" style="width:100px" placeholder="Amount" id="f-ing-amt-${i}" value="${formIngredients[i]?.amount||''}" oninput="formIngredients[${i}].amount=this.value">
+    <input class="small-input" style="flex:1" placeholder="Ingredient" id="f-ing-item-${i}" value="${formIngredients[i]?.item||''}" oninput="formIngredients[${i}].item=this.value">
+    ${formIngredients.length > 1 ? `<button class="remove-btn" onclick="removeIngField(${i})">×</button>` : ''}
+  </div>`;
+}
+
+function stepFieldHtml(i) {
+  return `<div class="ing-form-row">
+    <span style="font-weight:700;color:#78350F;font-size:14px;min-width:24px">${i+1}.</span>
+    <input class="small-input" style="flex:1" placeholder="Step ${i+1}..." id="f-step-${i}" value="${formSteps[i]||''}" oninput="formSteps[${i}]=this.value">
+    ${formSteps.length > 1 ? `<button class="remove-btn" onclick="removeStepField(${i})">×</button>` : ''}
+  </div>`;
+}
+
+function addIngField() {
+  // save current values
+  formIngredients.forEach((ing,i) => {
+    const a = document.getElementById('f-ing-amt-'+i);
+    const b = document.getElementById('f-ing-item-'+i);
+    if(a) ing.amount = a.value;
+    if(b) ing.item = b.value;
+  });
+  formIngredients.push({amount:'',item:''});
+  document.getElementById('f-ing-list').innerHTML = formIngredients.map((x,i) => ingFieldHtml(i)).join('');
+}
+function removeIngField(idx) {
+  formIngredients.forEach((ing,i) => {
+    const a = document.getElementById('f-ing-amt-'+i);
+    const b = document.getElementById('f-ing-item-'+i);
+    if(a) ing.amount = a.value;
+    if(b) ing.item = b.value;
+  });
+  formIngredients.splice(idx,1);
+  document.getElementById('f-ing-list').innerHTML = formIngredients.map((x,i) => ingFieldHtml(i)).join('');
+}
+function addStepField() {
+  formSteps.forEach((s,i) => { const el = document.getElementById('f-step-'+i); if(el) formSteps[i] = el.value; });
+  formSteps.push('');
+  document.getElementById('f-step-list').innerHTML = formSteps.map((x,i) => stepFieldHtml(i)).join('');
+}
+function removeStepField(idx) {
+  formSteps.forEach((s,i) => { const el = document.getElementById('f-step-'+i); if(el) formSteps[i] = el.value; });
+  formSteps.splice(idx,1);
+  document.getElementById('f-step-list').innerHTML = formSteps.map((x,i) => stepFieldHtml(i)).join('');
+}
+
+function saveRecipe() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { alert('Please enter a recipe title'); return; }
+  // Sync form values
+  formIngredients.forEach((ing,i) => {
+    const a = document.getElementById('f-ing-amt-'+i);
+    const b = document.getElementById('f-ing-item-'+i);
+    if(a) ing.amount = a.value;
+    if(b) ing.item = b.value;
+  });
+  formSteps.forEach((s,i) => { const el = document.getElementById('f-step-'+i); if(el) formSteps[i] = el.value; });
+
+  recipes.push({
+    id: nextId++,
+    title: title,
+    category: document.getElementById('f-category').value,
+    prepTime: document.getElementById('f-prep').value,
+    cookTime: document.getElementById('f-cook').value,
+    servings: parseInt(document.getElementById('f-servings').value) || 4,
+    description: document.getElementById('f-desc').value,
+    ingredients: formIngredients.filter(i => i.item.trim()),
+    steps: formSteps.filter(s => s.trim()),
+  });
+  showView('home');
+}
+
+// ============================================================
+//  SHOPPING LIST
+// ============================================================
+function renderShopping() {
+  const el = document.getElementById('view-shopping');
+  if (shoppingList.length === 0) {
+    // Selection mode
+    el.innerHTML = `<div style="padding:0 24px 100px">
+      <button class="back-btn" onclick="showView('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg> Back
+      </button>
+      <div style="font-size:26px;font-weight:800;color:#1F2937;margin-bottom:8px;letter-spacing:-0.5px">Shopping List</div>
+      <p style="font-size:14px;color:#6B7280;margin-bottom:20px">Select the recipes you want to shop for, then generate your list.</p>
+      ${recipes.map(r => {
+        const sel = selectedForShopping.has(r.id);
+        return `<div class="shop-recipe-card ${sel?'selected':''}" onclick="toggleShopSelect(${r.id})">
+          <div class="shop-checkbox ${sel?'checked':''}">${sel?checkSvg():'&nbsp;'}</div>
+          <div style="flex:1"><div style="font-weight:600;font-size:14px">${r.title}</div><div style="font-size:12px;color:#9CA3AF">${r.ingredients.length} ingredients</div></div>
+        </div>`;
+      }).join('')}
+      <button class="generate-btn" ${selectedForShopping.size===0?'disabled':''} onclick="buildShoppingList()">
+        Generate Shopping List (${selectedForShopping.size} recipe${selectedForShopping.size!==1?'s':''})
+      </button>
+    </div>`;
+  } else {
+    // List mode
+    const grouped = {};
+    shoppingList.forEach((item, idx) => {
+      if (!grouped[item.from]) grouped[item.from] = [];
+      grouped[item.from].push({...item, idx});
+    });
+    const total = shoppingList.length;
+    const done = checkedShopItems.size;
+    const pct = Math.round((done/total)*100);
+    el.innerHTML = `<div style="padding:0 24px 100px">
+      <button class="back-btn" onclick="showView('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg> Back
+      </button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="font-size:26px;font-weight:800;color:#1F2937;letter-spacing:-0.5px">Shopping List</div>
+        <span style="font-size:13px;font-weight:600;color:#78350F">${done}/${total} items</span>
+      </div>
+      <div style="margin-bottom:24px"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${done===total?'#10B981':'#D97706'}"></div></div></div>
+      ${Object.entries(grouped).map(([from, items]) => `
+        <div style="margin-bottom:20px">
+          <div class="shop-from">${from}</div>
+          ${items.map(item => {
+            const chk = checkedShopItems.has(item.idx);
+            return `<div class="shop-item ${chk?'checked':''}" onclick="toggleShopItem(${item.idx})">
+              <div class="shop-item-check">${chk?checkSvg():''}</div>
+              <span class="shop-item-text"><strong>${item.amount}</strong> ${item.item}</span>
+            </div>`;
+          }).join('')}
+        </div>`).join('')}
+      <button class="add-field-btn" style="margin-top:8px" onclick="resetShoppingList()">← Build new list</button>
+    </div>`;
+  }
+  updateShopBadge();
+}
+
+function toggleShopSelect(id) {
+  if (selectedForShopping.has(id)) selectedForShopping.delete(id); else selectedForShopping.add(id);
+  renderShopping();
+}
+
+function buildShoppingList() {
+  shoppingList = [];
+  checkedShopItems = new Set();
+  recipes.filter(r => selectedForShopping.has(r.id)).forEach(r => {
+    r.ingredients.forEach(ing => shoppingList.push({...ing, from: r.title}));
+  });
+  renderShopping();
+}
+
+function toggleShopItem(idx) {
+  if (checkedShopItems.has(idx)) checkedShopItems.delete(idx); else checkedShopItems.add(idx);
+  renderShopping();
+}
+
+function resetShoppingList() {
+  shoppingList = [];
+  selectedForShopping = new Set();
+  checkedShopItems = new Set();
+  renderShopping();
+}
+
+function updateShopBadge() {
+  const badge = document.getElementById('shop-badge');
+  if (selectedForShopping.size > 0) {
+    badge.style.display = 'flex';
+    badge.textContent = selectedForShopping.size;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+renderHome();
+</script>
+</body>
+</html>
