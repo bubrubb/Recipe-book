@@ -32,7 +32,7 @@
     width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
     position: absolute; top: -4px; right: -4px;
   }
-
+ 
   /* Search */
   .search-bar { margin: 20px 24px 0; position: relative; }
   .search-bar svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
@@ -42,7 +42,7 @@
     outline: none; color: #1F2937; font-family: inherit; transition: border-color 0.2s;
   }
   .search-input:focus { border-color: #D97706; }
-
+ 
   /* Categories */
   .categories { display: flex; gap: 8px; padding: 16px 24px; overflow-x: auto; scrollbar-width: none; }
   .categories::-webkit-scrollbar { display: none; }
@@ -52,7 +52,7 @@
     transition: all 0.2s; flex-shrink: 0; font-family: inherit;
   }
   .cat-pill.active { background: #78350F; color: #FFF; }
-
+ 
   /* Grid */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; padding: 8px 24px 100px; }
   .card {
@@ -70,7 +70,7 @@
   .card-desc { font-size: 13px; color: #6B7280; line-height: 1.5; margin-bottom: 12px; }
   .card-meta { display: flex; gap: 14px; font-size: 12px; color: #9CA3AF; align-items: center; }
   .meta-item { display: flex; align-items: center; gap: 4px; }
-
+ 
   /* Detail */
   .detail-container { padding: 0 24px 100px; }
   .back-btn {
@@ -89,7 +89,7 @@
     font-size: 16px; font-weight: 700; color: #78350F; text-transform: uppercase;
     letter-spacing: 1px; margin-bottom: 14px;
   }
-
+ 
   /* Ingredients with checkboxes */
   .ing-row {
     display: flex; align-items: center; gap: 12px; padding: 10px 0;
@@ -105,7 +105,7 @@
   .ing-amount { font-weight: 600; color: #78350F; font-size: 15px; transition: all 0.2s; }
   .ing-row.checked .ing-name { color: #9CA3AF; text-decoration: line-through; text-decoration-thickness: 1px; }
   .ing-row.checked .ing-amount { color: #C4A882; text-decoration: line-through; text-decoration-thickness: 1px; }
-
+ 
   /* Steps */
   .step-item {
     display: flex; gap: 14px; padding: 14px 16px; margin-bottom: 8px;
@@ -121,11 +121,11 @@
   .step-item.done .step-num { background: #10B981; }
   .step-text { font-size: 15px; line-height: 1.6; color: #374151; flex: 1; }
   .step-item.done .step-text { color: #6B7280; text-decoration: line-through; }
-
+ 
   /* Progress bar */
   .progress-bar { height: 6px; background: rgba(0,0,0,0.06); border-radius: 3px; }
   .progress-fill { height: 6px; border-radius: 3px; transition: width 0.4s ease; }
-
+ 
   /* Buttons */
   .action-btns { display: flex; gap: 10px; margin-top: 16px; }
   .print-btn {
@@ -138,7 +138,7 @@
     color: #DC2626; border: none; border-radius: 12px; padding: 10px 16px;
     font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
   }
-
+ 
   /* Form */
   .form-container { padding: 0 24px 100px; }
   .form-group { margin-bottom: 18px; }
@@ -177,7 +177,7 @@
     width: 100%; margin-top: 8px; font-family: inherit;
   }
   .save-btn:disabled { opacity: 0.4; cursor: default; }
-
+ 
   /* Shopping */
   .shop-recipe-card {
     display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin-bottom: 8px;
@@ -210,7 +210,7 @@
     width: 100%; margin-top: 12px; margin-bottom: 24px; font-family: inherit;
   }
   .generate-btn:disabled { opacity: 0.4; cursor: default; }
-
+ 
   /* Print preview */
   .print-preview-container { padding: 0 24px 100px; }
   .print-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -226,14 +226,14 @@
   }
   .print-frame-wrap iframe { width: 100%; height: 680px; border: none; }
   .print-tip { font-size: 12px; color: #9CA3AF; text-align: center; margin-top: 12px; }
-
+ 
   /* Empty state */
   .empty-state { text-align: center; padding: 60px 20px; color: #9CA3AF; }
-
+ 
   /* Hide views */
   .view { display: none; }
   .view.active { display: block; }
-
+ 
   /* SVG icons inline */
   svg { vertical-align: middle; }
 </style>
@@ -260,7 +260,7 @@
       </button>
     </div>
   </div>
-
+ 
   <!-- HOME VIEW -->
   <div class="view active" id="view-home">
     <div class="search-bar">
@@ -270,20 +270,20 @@
     <div class="categories" id="categories"></div>
     <div class="grid" id="recipe-grid"></div>
   </div>
-
+ 
   <!-- DETAIL VIEW -->
   <div class="view" id="view-detail"></div>
-
+ 
   <!-- ADD VIEW -->
   <div class="view" id="view-add"></div>
-
+ 
   <!-- SHOPPING VIEW -->
   <div class="view" id="view-shopping"></div>
-
+ 
   <!-- PRINT VIEW -->
   <div class="view" id="view-print"></div>
 </div>
-
+ 
 <script>
 // ============================================================
 //  RECIPE DATA — ADD NEW RECIPES HERE!
@@ -702,8 +702,107 @@ let recipes = [
       "Cool on baking sheet for 5 minutes, then transfer to a wire rack.",
     ],
   },
+  {
+    id: 14,
+    title: "White Borscht",
+    category: "Soups",
+    prepTime: "20 min",
+    cookTime: "45 min",
+    servings: 8,
+    description: "A hearty Polish white borscht with Polish sausage, potatoes, boiled eggs, horseradish, and heavy cream. Topped with crunchy bacon and fresh parsley.",
+    ingredients: [
+      { amount: "2 liters", item: "water" },
+      { amount: "2 cubes", item: "vegetable bouillon" },
+      { amount: "1 medium", item: "onion, whole and skinned" },
+      { amount: "2", item: "carrots, finely chopped" },
+      { amount: "4", item: "potatoes, chopped and peeled" },
+      { amount: "2 tbsp", item: "horseradish" },
+      { amount: "3", item: "bay leaves" },
+      { amount: "¼ cup", item: "flour" },
+      { amount: "1 cup", item: "heavy cream (add more if needed)" },
+      { amount: "1 lb", item: "Polish sausage, browned in a little oil" },
+      { amount: "2 medium", item: "onions, fine chopped (for sausage)" },
+      { amount: "½ bulb", item: "garlic, crushed" },
+      { amount: "5-6", item: "boiled eggs, peeled and quartered" },
+      { amount: "5 slices", item: "bacon, cooked crunchy and chopped" },
+      { amount: "", item: "lemon juice, for serving (optional)" },
+      { amount: "", item: "fresh parsley, for serving" },
+    ],
+    steps: [
+      "In a large pot, combine the water, vegetable bouillon, whole skinned onion, carrots, potatoes, horseradish, bay leaves, and flour. Bring to a boil, then reduce heat and simmer until the vegetables are soft.",
+      "While the soup simmers, brown the Polish sausage in a separate pan with a little oil (not too much). Add the fine chopped onions and crushed garlic and cook until the onions are soft.",
+      "When the vegetables in the soup are soft, add the heavy cream and stir to combine. Add more cream if needed.",
+      "Add the browned sausage, onions, and garlic mixture to the soup. Stir and let it simmer together for a few minutes.",
+      "Add the quartered boiled eggs to the pot.",
+      "To serve, ladle into bowls and top with crunchy chopped bacon. Squeeze lemon juice over for extra flavor and garnish with fresh parsley.",
+    ],
+  },
+  {
+    id: 15,
+    title: "Birria Tacos (Quesabirria)",
+    category: "Main Dishes",
+    prepTime: "30 min",
+    cookTime: "3 hrs",
+    servings: 8,
+    description: "Rich, tender beef birria served as crispy cheese-filled tacos with consommé for dipping.",
+    ingredients: [
+      { amount: "3–4 lbs", item: "beef chuck" },
+      { amount: "", item: "salt and pepper" },
+      { amount: "4", item: "guajillo chiles" },
+      { amount: "2", item: "ancho chiles" },
+      { amount: "2", item: "chipotle chiles" },
+      { amount: "1", item: "onion" },
+      { amount: "6 cloves", item: "garlic" },
+      { amount: "2", item: "Roma tomatoes" },
+      { amount: "2 tsp", item: "cumin" },
+      { amount: "2 tsp", item: "oregano" },
+      { amount: "½ tsp", item: "cloves" },
+      { amount: "1 tsp", item: "cinnamon" },
+      { amount: "2", item: "bay leaves" },
+      { amount: "2 tbsp", item: "apple cider vinegar" },
+      { amount: "2 cups", item: "beef broth" },
+      { amount: "", item: "corn tortillas" },
+      { amount: "", item: "shredded cheese (for tacos)" },
+      { amount: "", item: "onion, cilantro, lime, and consommé for serving" },
+    ],
+    steps: [
+      "Toast and soak the guajillo, ancho, and chipotle chiles until softened. Blend with the onion, garlic, Roma tomatoes, cumin, oregano, cloves, cinnamon, apple cider vinegar, and beef broth to make the sauce.",
+      "Season the beef chuck with salt and pepper. Sear the beef in a large pot or Dutch oven until browned on all sides. Add the blended sauce and bay leaves.",
+      "Simmer on low for 2.5–3.5 hours (or pressure cook for 45–60 minutes) until the beef is fork-tender.",
+      "Shred the beef and save the consommé. Skim the fat layer from the top and reserve it.",
+      "To make tacos, dip corn tortillas in the reserved fat. Add shredded cheese and birria meat, then crisp in a pan until the cheese melts and the tortilla is golden.",
+      "Serve with diced onion, cilantro, lime wedges, and a bowl of hot consommé for dipping.",
+    ],
+  },
+  {
+    id: 16,
+    title: "Birria Ramen",
+    category: "Soups",
+    prepTime: "10 min",
+    cookTime: "10 min",
+    servings: 2,
+    description: "A fusion twist using leftover birria meat and consommé as a rich ramen broth, topped with soft boiled eggs and chili oil.",
+    ingredients: [
+      { amount: "", item: "leftover birria meat + consommé" },
+      { amount: "2 packs", item: "ramen noodles (no seasoning packet)" },
+      { amount: "2", item: "soft boiled eggs" },
+      { amount: "", item: "cilantro" },
+      { amount: "", item: "onion, diced" },
+      { amount: "", item: "lime" },
+      { amount: "", item: "chili oil (optional)" },
+      { amount: "", item: "jalapeños (optional)" },
+      { amount: "", item: "corn (optional)" },
+    ],
+    steps: [
+      "Heat the birria consommé in a pot. Add water if it's too rich.",
+      "Cook the ramen noodles separately according to package directions (discard the seasoning packet). Drain.",
+      "Add noodles and birria meat to a bowl.",
+      "Pour hot consommé over the noodles and meat.",
+      "Top with soft boiled egg, cilantro, diced onion, a squeeze of lime, and chili oil.",
+    ],
+  },
 ];
-
+ 
 // ============================================================
 //  STATE
 // ============================================================
@@ -728,13 +827,13 @@ let checkedShopItems = new Set();
 let checkedIngredients = new Set();
 let completedSteps = new Set();
 let currentView = "home";
-
+ 
 function getColor(cat) { return categoryColors[cat] || defaultColor; }
 function checkSvg() { return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>'; }
 function clockSvg() { return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>'; }
 function servSvg() { return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>'; }
 function printSvg() { return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>'; }
-
+ 
 // ============================================================
 //  VIEWS
 // ============================================================
@@ -749,7 +848,7 @@ function showView(name) {
   if (name === 'shopping') renderShopping();
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
-
+ 
 // ============================================================
 //  HOME
 // ============================================================
@@ -761,12 +860,12 @@ function renderHome() {
   ).join('');
   filterRecipes();
 }
-
+ 
 function setCategory(cat) {
   activeCategory = cat;
   renderHome();
 }
-
+ 
 function filterRecipes() {
   const q = document.querySelector('.search-input')?.value.toLowerCase() || '';
   const filtered = recipes.filter(r => {
@@ -794,7 +893,7 @@ function filterRecipes() {
     </div>`;
   }).join('');
 }
-
+ 
 // ============================================================
 //  DETAIL
 // ============================================================
@@ -808,7 +907,7 @@ function openRecipe(id) {
   document.getElementById('view-detail').classList.add('active');
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
-
+ 
 function renderDetail(r) {
   const c = getColor(r.category);
   const el = document.getElementById('view-detail');
@@ -857,7 +956,7 @@ function renderDetail(r) {
     </div>
   </div>`;
 }
-
+ 
 function toggleIng(i) {
   if (checkedIngredients.has(i)) checkedIngredients.delete(i); else checkedIngredients.add(i);
   const row = document.getElementById('ing-'+i);
@@ -866,7 +965,7 @@ function toggleIng(i) {
   check.classList.toggle('checked', checkedIngredients.has(i));
   check.innerHTML = checkedIngredients.has(i) ? checkSvg() : '&nbsp;';
 }
-
+ 
 function toggleStep(recipeId, i) {
   const r = recipes.find(x => x.id === recipeId);
   if (completedSteps.has(i)) completedSteps.delete(i); else completedSteps.add(i);
@@ -880,13 +979,13 @@ function toggleStep(recipeId, i) {
   fill.style.width = pct + '%';
   fill.style.background = pct === 100 ? '#10B981' : '#D97706';
 }
-
+ 
 function deleteRecipe(id) {
   if (!confirm('Delete this recipe?')) return;
   recipes = recipes.filter(r => r.id !== id);
   showView('home');
 }
-
+ 
 // ============================================================
 //  PRINT
 // ============================================================
@@ -901,7 +1000,7 @@ function openPrint(id) {
   const stepsHtml = r.steps.map((s,i) =>
     `<div class="step"><span class="step-num">${i+1}</span><span class="step-text">${s}</span></div>`
   ).join('');
-
+ 
   const html = `<!DOCTYPE html><html><head><style>
     @page{size:letter;margin:0.5in 0.6in}
     @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
@@ -930,7 +1029,7 @@ function openPrint(id) {
     <div class="steps"><div class="section-title">Directions</div>${stepsHtml}</div>
     <div class="footer">My Recipe Book</div>
   </body></html>`;
-
+ 
   const el = document.getElementById('view-print');
   el.innerHTML = `<div class="print-preview-container">
     <button class="back-btn" onclick="openRecipe(${r.id})">
@@ -945,34 +1044,34 @@ function openPrint(id) {
     </div>
     <p class="print-tip">Tip: In the print dialog, select "Save as PDF" as your printer to save a PDF file. Set margins to default or minimum.</p>
   </div>`;
-
+ 
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   el.classList.add('active');
   window.scrollTo({top: 0, behavior: 'smooth'});
-
+ 
   setTimeout(() => {
     const iframe = document.getElementById('print-frame');
     iframe.srcdoc = html;
   }, 50);
 }
-
+ 
 function doPrint() {
   const iframe = document.getElementById('print-frame');
   if (iframe) { iframe.contentWindow.focus(); iframe.contentWindow.print(); }
 }
-
+ 
 // ============================================================
 //  ADD RECIPE FORM
 // ============================================================
 let formIngredients = [{amount:'',item:''}];
 let formSteps = [''];
-
+ 
 function renderAddForm() {
   formIngredients = [{amount:'',item:''}];
   formSteps = [''];
   rebuildAddForm();
 }
-
+ 
 function rebuildAddForm() {
   const el = document.getElementById('view-add');
   el.innerHTML = `<div class="form-container">
@@ -1017,7 +1116,7 @@ function rebuildAddForm() {
     <button class="save-btn" onclick="saveRecipe()">Save Recipe</button>
   </div>`;
 }
-
+ 
 function ingFieldHtml(i) {
   return `<div class="ing-form-row">
     <input class="small-input" style="width:100px" placeholder="Amount" id="f-ing-amt-${i}" value="${formIngredients[i]?.amount||''}" oninput="formIngredients[${i}].amount=this.value">
@@ -1025,7 +1124,7 @@ function ingFieldHtml(i) {
     ${formIngredients.length > 1 ? `<button class="remove-btn" onclick="removeIngField(${i})">×</button>` : ''}
   </div>`;
 }
-
+ 
 function stepFieldHtml(i) {
   return `<div class="ing-form-row">
     <span style="font-weight:700;color:#78350F;font-size:14px;min-width:24px">${i+1}.</span>
@@ -1033,7 +1132,7 @@ function stepFieldHtml(i) {
     ${formSteps.length > 1 ? `<button class="remove-btn" onclick="removeStepField(${i})">×</button>` : ''}
   </div>`;
 }
-
+ 
 function addIngField() {
   // save current values
   formIngredients.forEach((ing,i) => {
@@ -1065,7 +1164,7 @@ function removeStepField(idx) {
   formSteps.splice(idx,1);
   document.getElementById('f-step-list').innerHTML = formSteps.map((x,i) => stepFieldHtml(i)).join('');
 }
-
+ 
 function saveRecipe() {
   const title = document.getElementById('f-title').value.trim();
   if (!title) { alert('Please enter a recipe title'); return; }
@@ -1077,7 +1176,7 @@ function saveRecipe() {
     if(b) ing.item = b.value;
   });
   formSteps.forEach((s,i) => { const el = document.getElementById('f-step-'+i); if(el) formSteps[i] = el.value; });
-
+ 
   recipes.push({
     id: nextId++,
     title: title,
@@ -1091,7 +1190,7 @@ function saveRecipe() {
   });
   showView('home');
 }
-
+ 
 // ============================================================
 //  SHOPPING LIST
 // ============================================================
@@ -1151,12 +1250,12 @@ function renderShopping() {
   }
   updateShopBadge();
 }
-
+ 
 function toggleShopSelect(id) {
   if (selectedForShopping.has(id)) selectedForShopping.delete(id); else selectedForShopping.add(id);
   renderShopping();
 }
-
+ 
 function buildShoppingList() {
   shoppingList = [];
   checkedShopItems = new Set();
@@ -1165,19 +1264,19 @@ function buildShoppingList() {
   });
   renderShopping();
 }
-
+ 
 function toggleShopItem(idx) {
   if (checkedShopItems.has(idx)) checkedShopItems.delete(idx); else checkedShopItems.add(idx);
   renderShopping();
 }
-
+ 
 function resetShoppingList() {
   shoppingList = [];
   selectedForShopping = new Set();
   checkedShopItems = new Set();
   renderShopping();
 }
-
+ 
 function updateShopBadge() {
   const badge = document.getElementById('shop-badge');
   if (selectedForShopping.size > 0) {
@@ -1187,7 +1286,7 @@ function updateShopBadge() {
     badge.style.display = 'none';
   }
 }
-
+ 
 // ============================================================
 //  INIT
 // ============================================================
